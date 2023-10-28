@@ -1,4 +1,4 @@
-package videogamedb.finalsimulation;
+package videogamedb.simulation;
 
 import io.gatling.javaapi.core.*;
 import io.gatling.javaapi.http.*;
@@ -8,19 +8,21 @@ import static io.gatling.javaapi.http.HttpDsl.*;
 
 public class VideoGameDbFullTest extends Simulation {
 
-    // HTTP PROTOCOL
-    private HttpProtocolBuilder httpProtocol = http
-            .baseUrl("https://videogamedb.uk/api")
-            .acceptHeader("application/json")
-            .contentTypeHeader("application/json");
-
-    // RUNTIME PARAMETERS
-    private static final int USER_COUNT = Integer.parseInt(System.getProperty("USERS", "5"));
     private static final int RAMP_DURATION = Integer.parseInt(System.getProperty("RAMP_DURATION", "10"));
     private static final int TEST_DURATION = Integer.parseInt(System.getProperty("TEST_DURATION", "60"));
+    private static final int USER_COUNT = Integer.parseInt(System.getProperty("USERS", "5"));
+
+
+    // HTTP PROTOCOL
+    private final HttpProtocolBuilder httpProtocol = http
+        // RUNTIME PARAMETERS
+        .baseUrl("https://videogamedb.uk/api")
+        .acceptHeader("application/json")
+        .contentTypeHeader("application/json");
+
 
     // FEEDER FOR TEST - CSV, JSON etc.
-    private static FeederBuilder.FileBased<Object> jsonFeeder = jsonFile("data/gameJsonFile.json").random();
+    private static final FeederBuilder.FileBased<Object> jsonFeeder = jsonFile("data/gameJsonFile.json").random();
 
     // BEFORE BLOCK
     @Override
@@ -31,43 +33,45 @@ public class VideoGameDbFullTest extends Simulation {
     }
 
     // HTTP CALLS
-    private static ChainBuilder authenticate =
+    private static final ChainBuilder authenticate =
             exec(http("Authenticate")
                     .post("/authenticate")
-                    .body(StringBody("{\n" +
-                            "  \"password\": \"admin\",\n" +
-                            "  \"username\": \"admin\"\n" +
-                            "}"))
+                    .body(StringBody("""
+                        {
+                          "password": "admin",
+                          "username": "admin"
+                        }
+                        """))
                     .check(jmesPath("token").saveAs("jwtToken")));
 
-    private static ChainBuilder getAllVideoGames =
+    private static final ChainBuilder getAllVideoGames =
             exec(http("Get all video games")
                     .get("/videogame"));
 
-    private static ChainBuilder createNewGame =
+    private static final ChainBuilder createNewGame =
             feed(jsonFeeder)
                     .exec(http("Create New Game - #{name}")
                                     .post("/videogame")
                                     .header("Authorization", "Bearer #{jwtToken}")
                                     .body(ElFileBody("bodies/newGameTemplate.json")).asJson());
 
-    private static ChainBuilder getLastPostedGame =
+    private static final ChainBuilder getLastPostedGame =
             exec(http("Get Last Posted Game - #{name}")
                     .get("/videogame/#{id}")
                     .check(jmesPath("name").isEL("#{name}")));
 
-    private static ChainBuilder deleteLastPostedGame =
+    private static final ChainBuilder deleteLastPostedGame =
             exec(http("Delete game - #{name}")
                     .delete("/videogame/#{id}")
                     .header("Authorization", "Bearer #{jwtToken}")
                     .check(bodyString().is("Video game deleted")));
 
-    // SCENARIO OR USER JOURNEY
+    // SCENARIO
     // 1. Get all video games
     // 2. Create a new game
     // 3. Get details of newly created game
     // 4. Delete newly created game
-    private ScenarioBuilder scn = scenario("Video game db - final simulation")
+    private final ScenarioBuilder scn = scenario("Video game db - final simulation")
             .forever().on(
                     exec(getAllVideoGames)
                             .pause(2)
