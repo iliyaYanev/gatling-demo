@@ -1,10 +1,22 @@
 package videogamedb.simulation;
 
-import io.gatling.javaapi.core.*;
-import io.gatling.javaapi.http.*;
+import static io.gatling.javaapi.core.CoreDsl.ElFileBody;
+import static io.gatling.javaapi.core.CoreDsl.StringBody;
+import static io.gatling.javaapi.core.CoreDsl.bodyString;
+import static io.gatling.javaapi.core.CoreDsl.exec;
+import static io.gatling.javaapi.core.CoreDsl.feed;
+import static io.gatling.javaapi.core.CoreDsl.jmesPath;
+import static io.gatling.javaapi.core.CoreDsl.jsonFile;
+import static io.gatling.javaapi.core.CoreDsl.nothingFor;
+import static io.gatling.javaapi.core.CoreDsl.rampUsers;
+import static io.gatling.javaapi.core.CoreDsl.scenario;
+import static io.gatling.javaapi.http.HttpDsl.http;
 
-import static io.gatling.javaapi.core.CoreDsl.*;
-import static io.gatling.javaapi.http.HttpDsl.*;
+import io.gatling.javaapi.core.ChainBuilder;
+import io.gatling.javaapi.core.FeederBuilder;
+import io.gatling.javaapi.core.ScenarioBuilder;
+import io.gatling.javaapi.core.Simulation;
+import io.gatling.javaapi.http.HttpProtocolBuilder;
 
 public class VideoGameDbFullTest extends Simulation {
 
@@ -74,13 +86,9 @@ public class VideoGameDbFullTest extends Simulation {
     private final ScenarioBuilder scn = scenario("Video game db - final simulation")
             .forever().on(
                     exec(getAllVideoGames)
-                            .pause(2)
                             .exec(authenticate)
-                            .pause(2)
                             .exec(createNewGame)
-                            .pause(2)
                             .exec(getLastPostedGame)
-                            .pause(2)
                             .exec(deleteLastPostedGame)
             );
 
@@ -88,7 +96,7 @@ public class VideoGameDbFullTest extends Simulation {
     {
         setUp(
                 scn.injectOpen(
-                        nothingFor(5),
+                        nothingFor(1),
                         rampUsers(USER_COUNT).during(RAMP_DURATION)
                 ).protocols(httpProtocol)
         ).maxDuration(TEST_DURATION);
@@ -99,6 +107,4 @@ public class VideoGameDbFullTest extends Simulation {
     public void after() {
         System.out.println("Stress test completed");
     }
-
-
 }

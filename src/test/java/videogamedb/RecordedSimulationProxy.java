@@ -1,15 +1,16 @@
 package videogamedb;
 
-import java.time.Duration;
-import java.util.*;
+import static io.gatling.javaapi.core.CoreDsl.AllowList;
+import static io.gatling.javaapi.core.CoreDsl.DenyList;
+import static io.gatling.javaapi.core.CoreDsl.RawFileBody;
+import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
+import static io.gatling.javaapi.core.CoreDsl.scenario;
+import static io.gatling.javaapi.http.HttpDsl.http;
 
-import io.gatling.javaapi.core.*;
-import io.gatling.javaapi.http.*;
-import io.gatling.javaapi.jdbc.*;
-
-import static io.gatling.javaapi.core.CoreDsl.*;
-import static io.gatling.javaapi.http.HttpDsl.*;
-import static io.gatling.javaapi.jdbc.JdbcDsl.*;
+import io.gatling.javaapi.core.ScenarioBuilder;
+import io.gatling.javaapi.core.Simulation;
+import io.gatling.javaapi.http.HttpProtocolBuilder;
+import java.util.Map;
 
 public class RecordedSimulationProxy extends Simulation {
 

@@ -1,17 +1,28 @@
 package videogamedb.feeders;
 
-import io.gatling.javaapi.core.*;
-import io.gatling.javaapi.http.*;
-import org.apache.commons.lang3.RandomStringUtils;
+import static io.gatling.javaapi.core.CoreDsl.ElFileBody;
+import static io.gatling.javaapi.core.CoreDsl.StringBody;
+import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
+import static io.gatling.javaapi.core.CoreDsl.bodyString;
+import static io.gatling.javaapi.core.CoreDsl.exec;
+import static io.gatling.javaapi.core.CoreDsl.feed;
+import static io.gatling.javaapi.core.CoreDsl.jmesPath;
+import static io.gatling.javaapi.core.CoreDsl.scenario;
+import static io.gatling.javaapi.http.HttpDsl.http;
 
+import io.gatling.javaapi.core.ChainBuilder;
+import io.gatling.javaapi.core.ScenarioBuilder;
+import io.gatling.javaapi.core.Simulation;
+import io.gatling.javaapi.http.HttpProtocolBuilder;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-
-import static io.gatling.javaapi.core.CoreDsl.*;
-import static io.gatling.javaapi.http.HttpDsl.*;
+import org.apache.commons.lang3.RandomStringUtils;
 
 public class VideoGameDbFeeders extends Simulation {
 
